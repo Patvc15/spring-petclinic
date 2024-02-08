@@ -1,8 +1,13 @@
-image: laurentgrangeau/oc-devops:latest
+variables:
+  DOCKER_IMAGE: "laurentgrangeau/oc-devops:latest"
+
+image: $DOCKER_IMAGE
 
 stages:
   - build
   - test
+  - quality
+  - package
   - deploy
 
 build:
@@ -13,8 +18,14 @@ test:
   script:
     - mvn test
 
-deploy:
+quality:
+  script:
+    - mvn sonar:sonar
+
+package:
   script:
     - mvn clean install -DskipTests
-    - curl -F "file=@target/spring-petclinic-0.0.1-SNAPSHOT.jar" https://gitlab.com/api/v4/projects/12345678/artifacts
 
+deploy:
+  script:
+    - echo "**Déploiement non configuré**"
