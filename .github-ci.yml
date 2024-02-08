@@ -1,0 +1,20 @@
+image: laurentgrangeau/oc-devops:latest
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  script:
+    - mvn clean install
+
+test:
+  script:
+    - mvn test
+
+deploy:
+  script:
+    - mvn clean install -DskipTests
+    - curl -F "file=@target/spring-petclinic-0.0.1-SNAPSHOT.jar" https://gitlab.com/api/v4/projects/12345678/artifacts
+
