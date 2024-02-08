@@ -1,0 +1,45 @@
+name: spring-petclinic
+
+on:
+  # Déclenche le workflow lors de la création d'une pull request
+  pull_request:
+    branches:
+      - main
+  # Déclenche le workflow lors de la fusion d'une branche dans main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Installation de Maven
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: Compilation et tests
+        run: mvn clean install
+
+      - name: SonarQube
+        uses: sonarsource/sonarcloud-github-action@v2.8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event_name == 'push' }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Déploiement sur le serveur
+        # Remplacez cette étape par votre propre script de déploiement
+        run: echo "**Déploiement non configuré**"
+
