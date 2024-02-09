@@ -1,31 +1,35 @@
-variables:
-  DOCKER_IMAGE: "laurentgrangeau/oc-devops:latest"
-
-image: $DOCKER_IMAGE
-
 stages:
-  - build
+  - compile
   - test
   - quality
-  - package
   - deploy
 
-build:
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+
+compile:
+  stage: compile
+  image: laurentgrangeau/oc-devops:latest
   script:
-    - mvn clean install
+    - ./mvnw compile $MAVEN_CLI_OPTS
 
 test:
+  stage: test
+  image: laurentgrangeau/oc-devops:latest
   script:
-    - mvn test
+    - ./mvnw test $MAVEN_CLI_OPTS
 
 quality:
+  stage: quality
+  image: laurentgrangeau/oc-devops:latest
   script:
-    - mvn sonar:sonar
-
-package:
-  script:
-    - mvn clean install -DskipTests
+    - ./mvnw verify sonar:sonar $MAVEN_CLI_OPTS
 
 deploy:
+  stage: deploy
+  image: laurentgrangeau/oc-devops:latest
   script:
-    - echo "**Déploiement non configuré**"
+    - ./mvnw deploy $MAVEN_CLI_OPTS
+  only:
+    - master
