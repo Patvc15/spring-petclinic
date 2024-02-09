@@ -1,27 +1,19 @@
-version: "2.2"
+version: '2'
 
 services:
-  mysql:
-    image: mysql:8.2
+  config-server:
+    image: registry.gitlab.com/patvc15/spring-petclinic-config-server:3.0.2
+    container_name: config-server
+    mem_limit: 512M
     ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=
-      - MYSQL_ALLOW_EMPTY_PASSWORD=true
-      - MYSQL_USER=petclinic
-      - MYSQL_PASSWORD=petclinic
-      - MYSQL_DATABASE=petclinic
-    volumes:
-      - "./conf.d:/etc/mysql/conf.d:ro"
-    profiles:
-      - mysql
-  postgres:
-    image: postgres:16.1
+     - 8888:8888
+
+  discovery-server:
+    image: registry.gitlab.com/patvc15/spring-petclinic-discovery-server:3.0.2
+    container_name: discovery-server
+    mem_limit: 512M
+    depends_on:
+      - config-server
+    entrypoint: ["./dockerize","-wait=tcp://config-server:8888","-timeout=60s","--","java", "org.springframework.boot.loader.JarLauncher"]
     ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=petclinic
-      - POSTGRES_USER=petclinic
-      - POSTGRES_DB=petclinic
-    profiles:
-      - postgres
+     - 8761:8761
